@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOUR MOVIE APP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+ 
+<div class="parent"> <!--Did this since i want navbar to take speicfic width and rem width to be taken by section-->
+  
+  <nav> <!--Will take required width-->
+    <a href="#home">HOME</a>
+    <a href="#watchList">MY WATCHLIST</a>
+    <a href="#about">ABOUT</a>
+  </nav>
+
+  <div id="contentArea">  <!--To take remaining width-->
+   <section id="home">
+     <input type="text" placeholder="Enter name">
+     <button type="submit">Search</button>
+     <div class="container"></div>
+   </section>
+
+    <section id="watchList">
+      <h2>My Watchlist</h2>
+      <div class="watchList"></div>
+    </section>
+
+    <section id="about">
+     <h2>About Your Movie App</h2>
+    </section>
+  </div>
+
+</div>
+<script src="script.js"></script>
+</body>
+
+</html>

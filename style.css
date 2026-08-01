@@ -1,0 +1,212 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family:'Courier New', Courier, monospace;
+}
+
+
+body {
+  background-color: #141414; /* Dark streaming-site cinematic background */
+  color: #ffffff;
+  padding-bottom: 40px;
+}
+
+/* 1. Target the parent section first to define height and space of elements inside it*/
+.parent{
+  display: flex;
+  flex-direction: column; /*on the .parent sets up a top-to-bottom block flow instead of a side-by-side layout.*/
+  width: 100%;
+  /*height: 100%; since parent container has no hgt*/
+  min-height: 100vh; /* Fixed: Forces the container to stretch to the screen floor */
+}
+
+.container {
+  display: grid;
+  /* Creates exactly 3 equal columns per row */
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 20px; /* Adjusts the spacing between cards */
+  padding: 20px;
+}
+
+
+nav{
+  display:flex;
+  justify-content:space-evenly;
+  align-items:center ;
+  width: 100%;/* Stretches the container across the entire screen since positin is added just default entire width prty is hidden.*/
+  padding: 15px;
+  top:2px;  /* Pulls the top border out of the browser's clip zone */
+  left: 0px;/*lock the left edge of this element exactly against the left wall of the screen.*/
+  background-color: #141414; /* Added background so cards don't bleed through */
+  height: 60px;
+  position: fixed;
+  z-index: 1000;         /* Keeps the navbar floating on top of movie cards */
+  /*box-sizing: border-box; means that padding and borders are included in an element's total width and height.
+  border: 2px solid #c75454;*/
+  border-bottom: 2px solid #b20710;
+  
+}
+
+
+nav a {
+  color: #aaaaaa;
+  text-decoration: none; /*to remove defaukt line*/
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease; /*UI*/
+}
+
+nav a:hover {
+  color: #e50914; /* Streaming red brand color on link hover */
+   /* Paint a 2px red border frame inside the link zone */
+  box-shadow: inset 0 0 0 2px #c9878b; 
+}
+
+
+
+
+button {
+  padding: 10px 20px;
+  margin-left: 8px;
+  background-color: #e50914;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #b20710;
+}
+
+
+#contentArea{
+  margin-top: 60px; /* Matches navbar height perfectly to prevent hidden text */
+   flex-grow: 1;  /* Crucial rule: Takes up 100% of all remaining width */
+  /*height: 100%;  A child element cannot calculate 100% height unless 
+  its parent (#watchList) or the base <body> element has an explicitly defined height.*/
+  background-color:#4c4d50;
+}
+
+
+input {
+  margin-top: 90px; /*so has to avoid it from hided below navbar*/
+  margin-left: 20px;
+  padding: 10px 15px;
+  width: 250px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222;
+  color: #fff;
+  outline: none;
+  font-size: 1rem;
+}
+
+input:focus {
+  border-color: #e50914; /* Highlights red when selected */
+}
+
+.container{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Creates 3 equal columns */
+  padding: 40px 20px 20px 20px;
+}
+
+.movieCard{
+  position:relative;  /* acts like an anchor point or a home base for any elements inside it that use
+  so using absolute to child items it will be place relative to this div i.e its parent*/
+  width:100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 50px; /* Creates a 50px empty "safe zone" at the bottom so the absolute button never overlaps your spans */
+}
+
+
+.movieCard img {
+  width: 100%;          /* image dynamically scales to fit the card width */
+  max-width: 400px;     /* prevents the image from becoming gigantically large on huge monitors */
+  height: auto;         /* maintains the aspect ratio so images don't look stretched */
+  border-radius: 4px;   /* optional aesthetic tweak */
+}
+
+
+/*Add the dot for class selector of saveBtn*/
+.movieCard .saveBtn {
+  position: absolute;   /* Breaks free from standard layout flow lines pf webpage
+  If a parent has position: relative;: The element locks itself inside that parent. 
+  bottom: 15px; right: 15px; puts it in the bottom-right corner of that specific card.
+
+  If no parent has positioning: It falls all the way back to the very edge of the entire browser window. 
+  Your button would fly out of the card and stick to the bottom-right corner of the screen.
+  */
+
+  bottom: 15px;         /* Locks it 15px away from the bottom card border edge */
+  right: 15px;          /* Locks it 15px away from the right card border edge */
+  
+  background: transparent; /* Removes ugly button box background wrappers */
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;          /* Clean, small explicit size footprint */
+  height: 24px;
+}
+
+.movieCard .liked{
+  position: absolute;
+  cursor: pointer;
+  bottom: 15px;
+  right: 30px;
+  width: 40px;
+}
+
+section{
+  display: none;
+}
+
+#watchList{
+  display: flex;
+  flex-direction: column;
+}
+
+#watchList h2{
+  text-align: center;
+  font-size: 35px;
+  margin-top: 25px;
+  
+}
+
+#about h2{
+  text-align: center;
+  font-size: 35px;
+  margin-top: 25px;
+}
+
+.layoutGrid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Creates 3 equal columns */
+  gap: 20px;
+}
+
+.delBtn{
+  position: absolute;
+  right:10px;
+  top: 10px;
+  width:24px;
+  height: 24px;
+  background: transparent; 
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.delBtn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
