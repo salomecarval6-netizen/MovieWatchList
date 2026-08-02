@@ -168,10 +168,8 @@ section{
   display: none;
 }
 
-#watchList{
-  display: flex;
-  flex-direction: column;
-}
+
+
 
 #watchList h2{
   text-align: center;

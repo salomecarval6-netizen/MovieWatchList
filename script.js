@@ -5,7 +5,14 @@ let input=document.querySelector('input');
 //let movieName=input.value; if written here it will take empty '' just as page loads
 
 //Global Array to hold your saved movies
-let watchlist = [];
+// This checks local storage first. If it finds data, it uses it; otherwise, it falls back to an empty array.
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+
+let reviews=JSON.parse(localStorage.getItem("reviews")) ||{};
+
+//Forces the Home section layout to display on initial page load.
+document.querySelector('#home').style.display = 'block';
 
 
 function loadPage(){
@@ -25,14 +32,23 @@ function loadPage(){
         const targetId = link.getAttribute('href'); 
         const targetSection = document.querySelector(targetId);
 
-
         //Change the targeted element's display directly
         if (targetSection) {
           targetSection.style.display = 'block'; // Or 'flex', 'grid', etc.
         }
         if(targetId ==='#watchList') //give in ''
         {
-            loadWatchList();
+          targetSection.style.flexDirection = 'column';
+          loadWatchList();
+        } 
+        else if(targetId==='#about')
+        {
+          loadReviews();
+        }
+        else {
+          // For Home and About, standard block display works perfectly
+          targetSection.style.display = 'block'; 
+           
         }
     })
   })
@@ -95,11 +111,16 @@ function loadWatchList() {
     let img = document.createElement("img");
     if (item.backdrop_path) {
       img.src = `https://image.tmdb.org/t/p/w500/${item.backdrop_path}`;
+    } else if (item.poster_path) {
+    img.src = `https://image.tmdb.org/t/p/w500/${item.poster_path}`;
     }
+
+
 
     let delBtn=document.createElement("button");
     delBtn.classList.add('delBtn');
-    delBtn.innerHTML=`<img src="delBtn.webp" alt="delete">`;
+    //delBtn.innerHTML=`<img src="delBtn.webp" alt="delete">`; not working
+    delBtn.textContent="X";
 
     delBtn.addEventListener("click",()=>{
       //localStorage.removeItem("movieCard"); this is wrong since your entire array of watchList will be deleted
@@ -107,24 +128,96 @@ function loadWatchList() {
         movieCard.remove();
 
         // 2. Pull down your current array of movies from storage
-        let currentList = JSON.parse(localStorage.getItem('watchList')) || [];
+        let currentList = JSON.parse(localStorage.getItem('watchlist')) || [];
 
         // 3. Filter out the specific movie using its unique text title (h1)
         let updatedList = currentList.filter(movie => movie.title !== h1.innerText);
 
         // 4. Push the cleaned array back down to storage
-        localStorage.setItem('myWatchlist', JSON.stringify(updatedList));
+        localStorage.setItem('watchlist', JSON.stringify(updatedList));
+
+         // 5. Keep runtime memory state synced
+        watchlist = updatedList;
+        alert(`Note is successfully deleted!`);
+        // 6. If you deleted the last item, show the fallback message immediately
+        if (updatedList.length === 0) {
+             watchlistContainer.innerHTML = "<p>Your watchlist is empty.</p>";
+        }
+    })
+
+
+    let review=document.createElement("input");
+    review.type = "text";
+    review.placeholder = "Write a review...";
+  
+    review.addEventListener("keydown",(event)=>{
+      if(event.key==="Enter")
+      {
+        let reviewText=review.value.trim();
+
+        if (reviewText) {
+        // 2. Map the movie title string dynamically as the unique key identifier property
+        reviews[item.title] = reviewText;
+
+        // 3.Convert your object to a string before saving to localStorage
+        localStorage.setItem("reviews", JSON.stringify(reviews));
+
+        alert(`Review saved for ${item.title}!`);
+        }
+      }
     })
 
     // Append items inside the layout structure tree
     movieCard.appendChild(h1);
     movieCard.appendChild(delBtn);
     movieCard.appendChild(img);
-    
+    movieCard.appendChild(review);
     watchlistContainer.appendChild(movieCard);
     //2.Automatically add the grid layout  class defined in css file to the container
     watchlistContainer.classList.add('layoutGrid');
-  });
+
+    });
+  }
+
+
+
+
+function loadReviews()
+{
+  const aboutSection = document.querySelector("#about");
+  if (!aboutSection) return;
+
+  //If you see the same review rendering twice on the screen after a reload, it is because your code is 
+  //appending new elements without clearing out the section's old HTML layout content.
+
+  //Clear out the entire section content before building new cards
+  aboutSection.innerHTML = ""; 
+
+  let div=document.createElement("div");
+  div.classList.add('container');
+  let reviewList=JSON.parse(localStorage.getItem('reviews')) || {};
+
+  //Use Object.entries() to loop through key-value pairs (since Object properties don't have .forEach)
+  const reviewPairs = Object.entries(reviewList);
+
+  // Loop through each [movieTitle, reviewText] pair
+  //Note the array destructuring brackets 
+  reviewPairs.forEach(([movieTitle, reviewText])=>{
+    let title=document.createElement("h1");
+    title.textContent=movieTitle;
+
+    let review=document.createElement("p");
+    review.textContent=reviewText;
+
+    //Pass the element variables, not string literals
+    div.appendChild(title); 
+    div.appendChild(review);
+  })
+
+  //Append the actual DOM node outside the loop, without quotes.
+  //Append inside the target active page section container instead of the document body root
+  aboutSection.appendChild(div); 
+
 }
 
 
@@ -200,19 +293,26 @@ async function getMovies(movieName) {
     */
 
     saveBtn.addEventListener("click", () => {
-  // 1. Check if the movie is already inside your array to prevent duplicates
-  if (!watchlist.some(movie => movie.id === item.id)) {
-    
-    // 2. Push the item into your global memory array
-    watchlist.push(item);
-    
-    // 3. CORRECT FIXED SYNTAX: Pass the variable inside the parenthesis
-    localStorage.setItem("watchlist", JSON.stringify(watchlist));
-    
-    // 4. Update the button UI text state
-    saveBtn.textContent = "Saved ✓";
-  }
-});
+      // 1. ALWAYS pull the freshest, most up-to-date data from localStorage first
+      let currentStored = JSON.parse(localStorage.getItem("watchlist")) || [];
+      
+      // 2. Check if the movie is already inside that fresh list to prevent duplicates
+      if (!currentStored.some(movie => movie.id === item.id)) {
+        
+        // 3. Push the new movie into your fresh list
+        currentStored.push(item);
+        
+        // 4. Update BOTH your global memory array and localStorage using the unified key
+        watchlist = currentStored;
+        localStorage.setItem("watchlist", JSON.stringify(watchlist));
+        
+        // 5. Update the button UI state
+        saveBtn.textContent = "Saved ✓";
+      } else {
+        saveBtn.textContent = "Already Saved";
+      }
+    });
+
 
 
       container.appendChild(movieCard);
