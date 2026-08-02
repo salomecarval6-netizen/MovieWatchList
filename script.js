@@ -57,6 +57,129 @@ function loadPage(){
 loadPage();
 
 
+async function getMovies(movieName) {
+  try {
+
+    const url =`https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${movieName}`;
+
+    const options = {
+    method: 'GET',
+    headers: {
+    'accept': 'application/json',  //the format of data the browser wants to receive in response.
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhMGRiYzg2MmEzMTZiNWQ4ZTcwN2M3ZDQxMGFiZWExMiIsIm5iZiI6MTc4NTQ2MzEwNi41NDQ5OTk4LCJzdWIiOiI2YTZjMDE0MmI3NDI5NjNkYjE2NGRmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.bLxE1_CIUYUp4R0CIHyrI2gKxVnjON_rZeBQjvE6F58'
+    }
+   };
+
+    const response = await fetch(url, options);
+    const movieData = await response.json();
+    console.log(movieData); // This holds the array of matching movies
+
+     let container=document.querySelector(".container");
+     container.innerHTML = "";
+
+    //movieData is obj & movieData.results consists of array of size 20 thus loop possible
+      movieData.results.forEach((item,idx)=>{
+    
+    let movieCard=document.createElement("div");
+    movieCard.classList.add("movieCard");
+    let h1=document.createElement("h1");
+    //h1.textContent=movieData.results[idx].title;
+    h1.textContent=item.title;
+    //movieData.results[idx]=item
+
+     // Create Image
+        let img = document.createElement("img");
+        if (item.backdrop_path) 
+        {
+           //https:// for images is a mandatory modern web standard enforced by browsers and APIs, and you cannot bypass it to access assets directly.
+           img.src = `https://image.tmdb.org/t/p/w500/${item.backdrop_path}`; //got this from images section in docs
+           //img.style.width = "400px";
+        }
+
+    let span1=document.createElement("span");
+    span1.textContent=`Release: ${item.release_date || 'N/A'}`;
+
+    let span2=document.createElement("span");
+     span2.textContent= `Popularity: ${Math.round(item.popularity)}`;
+   
+    //img.classList.add(`src=${movieData.results[idx].backdrop_path}`); wrong since classList.add() is ONLY for CSS Styles
+
+    let liked=document.createElement("div");
+    liked.innerHTML=`&#x2661`;
+    liked.classList.add('liked');
+      
+    liked.addEventListener("click",()=>{
+      liked.style.color = '#FFD400'; // Apply yellow color hex styling smoothly
+    })
+
+    let saveBtn= document.createElement("button");
+    //Wrapp securely inside a string literal
+    saveBtn.innerHTML=`<img src="saveIcon.webp" alt="save">`;
+    saveBtn.classList.add('saveBtn');
+
+
+    /*
+    saveBtn.addEventListener("click",()=>{
+      localStorage.setItem("SavedMovie",item.JSON.stringify());
+    })
+    */
+
+    saveBtn.addEventListener("click", () => {
+      // 1. ALWAYS pull the freshest, most up-to-date data from localStorage first
+      let currentStored = JSON.parse(localStorage.getItem("watchlist")) || [];
+      
+      // 2. Check if the movie is already inside that fresh list to prevent duplicates
+      if (!currentStored.some(movie => movie.id === item.id)) {
+        
+        // 3. Push the new movie into your fresh list
+        currentStored.push(item);
+        
+        // 4. Update BOTH your global memory array and localStorage using the unified key
+        watchlist = currentStored;
+        localStorage.setItem("watchlist", JSON.stringify(watchlist));
+        
+        // 5. Update the button UI state
+        saveBtn.textContent = "Saved ✓";
+      } else {
+        saveBtn.textContent = "Already Saved";
+      }
+    });
+
+
+
+      container.appendChild(movieCard);
+      movieCard.appendChild(h1);
+      movieCard.appendChild(img);
+      movieCard.appendChild(span1);
+      movieCard.appendChild(span2);
+      movieCard.appendChild(saveBtn);
+      movieCard.appendChild(liked);
+      
+  })
+
+
+  } catch (error) {
+    console.error('Request failed:', error);
+  }
+}
+
+let btn=document.querySelector('button');
+btn.addEventListener("click",()=>{
+  let movieName=input.value.trim();
+  getMovies(movieName);
+})
+
+input.addEventListener("keydown",(event)=>{
+  if(event.key==="Enter")
+  {
+    let movieName=input.value.trim();
+    getMovies(movieName);
+  }
+})
+
+
+
+
 /*
 function loadWatchList()
 {
@@ -220,127 +343,3 @@ function loadReviews()
 
 }
 
-
-
-
-
-
-async function getMovies(movieName) {
-  try {
-
-    const url =`https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${movieName}`;
-
-    const options = {
-    method: 'GET',
-    headers: {
-    'accept': 'application/json',  //the format of data the browser wants to receive in response.
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhMGRiYzg2MmEzMTZiNWQ4ZTcwN2M3ZDQxMGFiZWExMiIsIm5iZiI6MTc4NTQ2MzEwNi41NDQ5OTk4LCJzdWIiOiI2YTZjMDE0MmI3NDI5NjNkYjE2NGRmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.bLxE1_CIUYUp4R0CIHyrI2gKxVnjON_rZeBQjvE6F58'
-    }
-   };
-
-    const response = await fetch(url, options);
-    const movieData = await response.json();
-    console.log(movieData); // This holds the array of matching movies
-
-     let container=document.querySelector(".container");
-     container.innerHTML = "";
-
-    //movieData is obj & movieData.results consists of array of size 20 thus loop possible
-      movieData.results.forEach((item,idx)=>{
-    
-    let movieCard=document.createElement("div");
-    movieCard.classList.add("movieCard");
-    let h1=document.createElement("h1");
-    //h1.textContent=movieData.results[idx].title;
-    h1.textContent=item.title;
-    //movieData.results[idx]=item
-
-     // Create Image
-        let img = document.createElement("img");
-        if (item.backdrop_path) 
-        {
-           //https:// for images is a mandatory modern web standard enforced by browsers and APIs, and you cannot bypass it to access assets directly.
-           img.src = `https://image.tmdb.org/t/p/w500/${item.backdrop_path}`; //got this from images section in docs
-           //img.style.width = "400px";
-        }
-
-    let span1=document.createElement("span");
-    span1.textContent=`Release: ${item.release_date || 'N/A'}`;
-
-    let span2=document.createElement("span");
-     span2.textContent= `Popularity: ${Math.round(item.popularity)}`;
-   
-    //img.classList.add(`src=${movieData.results[idx].backdrop_path}`); wrong since classList.add() is ONLY for CSS Styles
-
-    let liked=document.createElement("div");
-    liked.innerHTML=`&#x2661`;
-    liked.classList.add('liked');
-      
-    liked.addEventListener("click",()=>{
-      liked.style.color = '#FFD400'; // Apply yellow color hex styling smoothly
-    })
-
-    let saveBtn= document.createElement("button");
-    //Wrapp securely inside a string literal
-    saveBtn.innerHTML=`<img src="saveIcon.webp" alt="save">`;
-    saveBtn.classList.add('saveBtn');
-
-
-    /*
-    saveBtn.addEventListener("click",()=>{
-      localStorage.setItem("SavedMovie",item.JSON.stringify());
-    })
-    */
-
-    saveBtn.addEventListener("click", () => {
-      // 1. ALWAYS pull the freshest, most up-to-date data from localStorage first
-      let currentStored = JSON.parse(localStorage.getItem("watchlist")) || [];
-      
-      // 2. Check if the movie is already inside that fresh list to prevent duplicates
-      if (!currentStored.some(movie => movie.id === item.id)) {
-        
-        // 3. Push the new movie into your fresh list
-        currentStored.push(item);
-        
-        // 4. Update BOTH your global memory array and localStorage using the unified key
-        watchlist = currentStored;
-        localStorage.setItem("watchlist", JSON.stringify(watchlist));
-        
-        // 5. Update the button UI state
-        saveBtn.textContent = "Saved ✓";
-      } else {
-        saveBtn.textContent = "Already Saved";
-      }
-    });
-
-
-
-      container.appendChild(movieCard);
-      movieCard.appendChild(h1);
-      movieCard.appendChild(img);
-      movieCard.appendChild(span1);
-      movieCard.appendChild(span2);
-      movieCard.appendChild(saveBtn);
-      movieCard.appendChild(liked);
-      
-  })
-
-
-  } catch (error) {
-    console.error('Request failed:', error);
-  }
-}
-
-let btn=document.querySelector('button');
-btn.addEventListener("click",()=>{
-  let movieName=input.value.trim();
-  getMovies(movieName);
-})
-
-input.addEventListener("keydown",(event)=>{
-  if(event.key==="Enter")
-  {
-    let movieName=input.value.trim();
-    getMovies(movieName);
-  }
-})
